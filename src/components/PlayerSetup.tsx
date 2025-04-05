@@ -4,22 +4,18 @@ import { NonEmptyArray, isNonEmptyArray } from "effect/Array";
 import { Player } from "../GameState";
 import { Button } from "./Button";
 import { PlayerList } from "./PlayerList";
+import { Either, pipe, Schema } from "effect";
 
 interface Props {
   startGame: (players: NonEmptyArray<Player>, roundCount: number) => void;
 }
 
-const initialPlayers = [
-  {
-    id: "1",
-    name: "Player 1",
-  },
-  {
-    id: "2",
-    name: "Player 2",
-  },
-  { id: "3", name: "Player 3" },
-];
+const PlayerSchema = Schema.NonEmptyArray(
+  Schema.Struct({
+    id: Schema.String,
+    name: Schema.String,
+  })
+);
 
 interface State {
   players: Player[];
@@ -52,10 +48,20 @@ const reducer: React.Reducer<State, Action> = (state, action) => {
 };
 
 export const PlayerSetup = ({ startGame }: Props) => {
-  const [state, dispatch] = React.useReducer(reducer, {
-    players: initialPlayers,
-    error: null,
-  });
+  const [state, dispatch] = React.useReducer(
+    reducer,
+    { players: [], error: null },
+    (init: State): State =>
+      pipe(
+        localStorage.getItem("players") ?? "{}",
+        Schema.decodeUnknownEither(Schema.parseJson(PlayerSchema)),
+        Either.map((players) => ({
+          players: Array.from(players),
+          error: null,
+        })),
+        Either.getOrElse(() => init)
+      )
+  );
 
   return (
     <div className="max-w-screen-sm mx-auto space-y-4">
@@ -80,6 +86,8 @@ export const PlayerSetup = ({ startGame }: Props) => {
             return;
           }
           if (isNonEmptyArray(state.players)) {
+            localStorage.setItem("players", JSON.stringify(state.players));
+
             startGame(state.players, 3);
           }
         }}
