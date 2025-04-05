@@ -7,7 +7,7 @@ import { Button } from "./Button";
 import { SubmissionSummary } from "./SubmissionSummary";
 
 interface Props {
-  players: Player[];
+  players: readonly Player[];
   submitBids: (bids: number[]) => void;
   round: Round;
   roundCount: number;

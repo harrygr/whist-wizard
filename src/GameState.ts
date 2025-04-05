@@ -1,4 +1,4 @@
-import { Array, Option, pipe } from "effect";
+import { Array, Option, pipe, Schema } from "effect";
 import { nanoid } from "nanoid";
 import React from "react";
 
@@ -15,44 +15,46 @@ const generateRounds = (players: Player[], roundCount: number): Round[] => {
   return rounds;
 };
 
-export interface Player {
-  id: string;
-  name: string;
-}
+const Player = Schema.Struct({
+  id: Schema.String,
+  name: Schema.String,
+});
 
-export interface PlayerRoundResult {
-  id: string;
-  bid: number;
-  won: number | null;
-}
-export interface PlayerScore extends PlayerRoundResult {
-  score: number | null;
-}
+export type Player = typeof Player.Type;
 
-export interface AccumlatedScore extends PlayerScore {
-  cumulativeScore: number | null;
-}
+const PlayerRoundResult = Schema.Struct({
+  id: Schema.String,
+  bid: Schema.Number,
+  won: Schema.Union(Schema.Null, Schema.Number),
+});
+export type PlayerRoundResult = typeof PlayerRoundResult.Type;
 
-export interface Round {
-  number: number;
-  dealer: string;
-  score: PlayerRoundResult[] | null;
-}
+const Round = Schema.Struct({
+  number: Schema.Number,
+  dealer: Schema.String,
+  score: Schema.Union(Schema.Null, Schema.Array(PlayerRoundResult)),
+});
+export type Round = typeof Round.Type;
 
-export interface State {
-  players: Player[];
-  rounds: Round[];
-}
+export const State = Schema.Struct({
+  players: Schema.Array(Player),
+  rounds: Schema.Array(Round),
+});
+export type State = typeof State.Type;
 
 export type Action =
   | { type: "startGame"; players: Player[]; roundCount: number }
   | { type: "setBids"; round: number; bids: number[] }
   | { type: "setTricks"; round: number; tricks: number[] }
+  | { type: "resumeGame"; state: State }
   | { type: "resetGame" };
 
 export const gameReducer: React.Reducer<State, Action> = (state, action) => {
+  if (action.type === "resumeGame") {
+    return action.state;
+  }
   if (action.type === "resetGame") {
-    return { players: state.players, rounds: [] };
+    return { players: [], rounds: [] };
   }
   if (action.type === "startGame") {
     return {

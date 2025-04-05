@@ -13,8 +13,6 @@ export const Scoreboard = ({ state, currentRound }: Props) => {
 
   return (
     <div>
-      <h2>Scoreboard</h2>
-
       <table className="table-fixed w-full border border-stone-200 ">
         <thead className="text-left">
           <tr>

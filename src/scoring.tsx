@@ -1,5 +1,13 @@
 import { pipe, Array } from "effect";
-import { AccumlatedScore, PlayerScore, State } from "./GameState";
+import { PlayerRoundResult, State } from "./GameState";
+
+export interface PlayerScore extends PlayerRoundResult {
+  score: number | null;
+}
+
+export interface AccumlatedScore extends PlayerScore {
+  cumulativeScore: number | null;
+}
 
 /**
  * Calculate the scores for each player in each round, including a running total.

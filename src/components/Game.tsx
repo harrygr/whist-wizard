@@ -4,6 +4,7 @@ import { Scoreboard } from "./Scoreboard";
 import { BidSubmitter } from "./BidSubmitter";
 import { TrickSubmitter } from "./TrickSubmitter";
 import { GameResult } from "./GameResult";
+import { Button } from "./Button";
 
 interface Props {
   state: State;
@@ -11,7 +12,6 @@ interface Props {
 }
 
 export const Game = ({ state, dispatch }: Props) => {
-  console.log(state);
   const currentRound = state.rounds.find(
     (round) =>
       round.score === null || round.score.every((score) => score.won === null)
@@ -32,9 +32,20 @@ export const Game = ({ state, dispatch }: Props) => {
 
   return (
     <div>
-      <div className="mb-4 max-w-screen-sm mx-auto">
-        <p>Current round: {currentRound.number}</p>
-        <p>Stage: {roundStage}</p>
+      <div className="mb-4 max-w-screen-sm mx-auto flex justify-between gap-4">
+        <div>
+          <p>Current round: {currentRound.number}</p>
+          <p>Stage: {roundStage}</p>
+        </div>
+        <div>
+          <Button
+            type="button"
+            kind="secondary"
+            onClick={() => dispatch({ type: "resetGame" })}
+          >
+            Exit
+          </Button>
+        </div>
       </div>
 
       {roundStage === "bid" && (
@@ -61,7 +72,7 @@ export const Game = ({ state, dispatch }: Props) => {
           roundCount={state.rounds.length}
         />
       )}
-      <hr />
+
       <Scoreboard state={state} currentRound={currentRound.number} />
     </div>
   );
