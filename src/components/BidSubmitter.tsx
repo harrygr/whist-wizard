@@ -59,13 +59,11 @@ export const BidSubmitter = ({
 
   return (
     <form
-      className="max-w-sm mx-auto"
       onSubmit={handleSubmit((values) => {
         const bids = players.map((player) => values.bids[player.id]);
         return submitBids(bids);
       })}
     >
-      <h2 className="text-2xl font-semibold mb-2">Player Bids</h2>
       <p className="text-stone-500 mb-4">
         Round {round.number} • {totalTricks} cards
       </p>

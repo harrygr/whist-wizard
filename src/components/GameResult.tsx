@@ -2,6 +2,7 @@ import { State } from "../GameState";
 import { calculateScores } from "../scoring";
 import { Array, pipe, Option, Schema, Effect, Order } from "effect";
 import { Button } from "./Button";
+import classNames from "classnames";
 
 interface Props {
   state: State;
@@ -27,30 +28,30 @@ export const GameResult = ({ state, newGame }: Props) => {
   );
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen max-w-screen-sm mx-auto space-y-6">
+    <div className="flex flex-col items-center justify-center absolute inset-0 max-w-screen-sm mx-auto space-y-6">
       <h1 className="text-4xl font-bold mb-4">Game Over</h1>
       <h2 className="text-2xl mb-4">Final Scores</h2>
-      <table className="table-fixed w-full border border-stone-200">
-        <thead className="text-left">
-          <tr>
-            <th className="p-1">Player</th>
-            <th className="p-1">Total Score</th>
-          </tr>
-        </thead>
-        <tbody className="text-left">
-          {finalScores.map(([player, score]) => {
-            return (
-              <tr
-                key={player.id}
-                className="border-t border-stone-200 tabular-nums"
-              >
-                <td className="p-1">{player.name}</td>
-                <td className="p-1">{score}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      <ul>
+        {finalScores.map(([player, score], i) => {
+          return (
+            <li
+              key={player.id}
+              className={classNames(
+                "flex justify-between border-t border-stone-200 tabular-nums items-center gap-8",
+                { "font-semibold": i === 0 }
+              )}
+            >
+              <div className={"flex items-center"}>
+                <div className="w-6">
+                  {i === 0 ? "👑" : i === 1 ? "🥈" : i === 2 ? "🥉" : null}
+                </div>
+                <div className="p-1">{player.name}</div>
+              </div>
+              <div className="p-1">{score}</div>
+            </li>
+          );
+        })}
+      </ul>
 
       <Button onClick={newGame} type="button">
         Play Again

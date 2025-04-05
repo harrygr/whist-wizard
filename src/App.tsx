@@ -18,7 +18,11 @@ export const App = () => {
   );
 
   React.useEffect(() => {
-    localStorage.setItem("currentGame", JSON.stringify(state));
+    try {
+      localStorage.setItem("currentGame", JSON.stringify(state));
+    } catch (error) {
+      console.error("Failed to save game state to localStorage", error);
+    }
   }, [state]);
 
   return (

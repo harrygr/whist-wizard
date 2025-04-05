@@ -1,10 +1,10 @@
 import React from "react";
 import { type Action, type State } from "../GameState";
 import { Scoreboard } from "./Scoreboard";
-import { BidSubmitter } from "./BidSubmitter";
-import { TrickSubmitter } from "./TrickSubmitter";
 import { GameResult } from "./GameResult";
 import { Button } from "./Button";
+import { BidSubmitterDialog } from "./BidSubmitterDialog";
+import { TrickSubmitterDialog } from "./TrickSubmitterDialog";
 
 interface Props {
   state: State;
@@ -32,7 +32,7 @@ export const Game = ({ state, dispatch }: Props) => {
 
   return (
     <div>
-      <div className="mb-4 max-w-screen-sm mx-auto flex justify-between gap-4">
+      <div className="mb-4 flex justify-between gap-4">
         <div>
           <p>Current round: {currentRound.number}</p>
           <p>Stage: {roundStage}</p>
@@ -49,7 +49,7 @@ export const Game = ({ state, dispatch }: Props) => {
       </div>
 
       {roundStage === "bid" && (
-        <BidSubmitter
+        <BidSubmitterDialog
           players={state.players}
           submitBids={(bids) =>
             dispatch({ type: "setBids", round: currentRound.number, bids })
@@ -59,7 +59,7 @@ export const Game = ({ state, dispatch }: Props) => {
         />
       )}
       {roundStage === "play" && (
-        <TrickSubmitter
+        <TrickSubmitterDialog
           players={state.players}
           submitTricks={(tricks) =>
             dispatch({

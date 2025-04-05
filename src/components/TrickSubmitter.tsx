@@ -49,14 +49,11 @@ export const TrickSubmitter = ({
 
   return (
     <form
-      className="max-w-sm mx-auto"
       onSubmit={handleSubmit((values) => {
         const tricks = players.map((player) => values.tricks[player.id]);
         return submitTricks(tricks);
       })}
     >
-      <h2 className="text-2xl font-semibold mb-2">Player Tricks</h2>
-
       <p className="text-stone-500 mb-4">
         Round {round.number} • {totalTricks} cards
       </p>
