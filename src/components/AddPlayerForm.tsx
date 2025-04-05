@@ -1,5 +1,7 @@
 import { nanoid } from "nanoid";
 import { Player } from "../GameState";
+import { Button } from "./Button";
+import React from "react";
 
 interface Props {
   onAddPlayer: (player: Player) => void;
@@ -17,12 +19,30 @@ export const AddPlayerForm = ({ onAddPlayer }: Props) => {
     onAddPlayer({ id: nanoid(6), name });
     form.reset();
   };
+
+  const id = React.useId();
   return (
     <form onSubmit={onSubmit}>
-      <h2>Add players</h2>
-      <label>Player name</label>
-      <input type="text" name="name" className="border" />
-      <button type="submit">Add player</button>
+      <h2 className="text-xl mb-4">Add players</h2>
+      <div className="flex gap-2 mb-4">
+        <div className="">
+          <label htmlFor={`${id}-name`} className="sr-only">
+            Player name
+          </label>
+          <input
+            autoFocus
+            id={`${id}-name`}
+            type="text"
+            name="name"
+            className="border border-stone-400 rounded h-9 px-2"
+            placeholder="Player name"
+            autoComplete="off"
+          />
+        </div>
+        <Button type="submit" size="small" kind="secondary">
+          Add player
+        </Button>
+      </div>
     </form>
   );
 };

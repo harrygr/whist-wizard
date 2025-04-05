@@ -1,77 +1,12 @@
 import classNames from "classnames";
-import {
-  tricksInRound,
-  State,
-  TOTAL_ROUNDS,
-  AccumlatedScore,
-  PlayerScore,
-} from "../GameState";
-import { Array, pipe } from "effect";
+import { tricksInRound, State, TOTAL_ROUNDS } from "../GameState";
 import React from "react";
+import { calculateScores } from "../scoring";
 
 interface Props {
   state: State;
   currentRound: number;
 }
-
-const calculateScores = (
-  players: State["players"],
-  rounds: State["rounds"]
-) => {
-  const scores = pipe(
-    rounds.map((round) => {
-      if (!round.score) {
-        return null;
-      }
-
-      return pipe(
-        Array.zip(players, round.score),
-        Array.map(
-          ([player, score]): PlayerScore => ({
-            id: player.id,
-            bid: score.bid,
-            won: score.won,
-            score: score.won === score.bid ? 10 + score.bid : score.won,
-          })
-        )
-      );
-    }),
-    Array.mapAccum(
-      players.map(() => 0),
-      (acc: Array<number | null>, roundScores) => {
-        if (!roundScores) {
-          return [acc, null];
-        }
-        const roundScoresWithCumulative = pipe(
-          Array.zip(acc, roundScores),
-          Array.map(
-            ([playerTotal, playerScore]): AccumlatedScore => ({
-              ...playerScore,
-              cumulativeScore:
-                playerScore.score !== null
-                  ? (playerTotal ?? 0) + playerScore.score
-                  : null,
-            })
-          )
-        );
-
-        return [
-          roundScoresWithCumulative.map(
-            ({ cumulativeScore }) => cumulativeScore
-          ),
-          roundScoresWithCumulative,
-        ];
-      }
-    ),
-    ([, result]) => result
-  );
-
-  return pipe(
-    rounds,
-    Array.map((round) => round.number),
-    Array.zip(scores)
-  );
-};
 
 export const Scoreboard = ({ state, currentRound }: Props) => {
   const scores = calculateScores(state.players, state.rounds);

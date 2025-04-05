@@ -24,9 +24,11 @@ export const Game = ({ state, dispatch }: Props) => {
     : "bid";
   return (
     <div>
-      <p>Current round: {currentRound.number}</p>
-      <p>Stage: {roundStage}</p>
-      <hr />
+      <div className="mb-4 max-w-screen-sm mx-auto">
+        <p>Current round: {currentRound.number}</p>
+        <p>Stage: {roundStage}</p>
+      </div>
+
       {roundStage === "bid" && (
         <BidSubmitter
           players={state.players}
