@@ -1,91 +1,112 @@
-import classNames from "classnames";
-import { tricksInRound, State } from "../GameState";
+import { State, tricksInRound } from "../GameState";
 import React from "react";
 import { calculateScores } from "../scoring";
+import { Accordion } from "radix-ui";
+import classNames from "classnames";
 
 interface Props {
   state: State;
   currentRound: number;
+  roundStage: "bid" | "play";
 }
 
-export const Scoreboard = ({ state, currentRound }: Props) => {
+export const Scoreboard = ({ state, currentRound, roundStage }: Props) => {
   const scores = calculateScores(state.players, state.rounds);
 
-  return (
-    <div>
-      <table className="table-fixed w-full border border-stone-200 ">
-        <thead className="text-left">
-          <tr>
-            <th className="p-1"></th>
-            {state.players.map((player) => (
-              <th
-                key={player.id}
-                className="border-l border-stone-200 p-1"
-                colSpan={4}
-              >
-                {player.name}
-              </th>
-            ))}
-          </tr>
-          <tr>
-            <th className="p-1">Round</th>
-            {state.players.map((player) => (
-              <React.Fragment key={player.id}>
-                <th className="p-1 border-l border-stone-200">Bid</th>
-                <th className="p-1">Got</th>
-                <th className="p-1">Pts</th>
-                <th className="p-1">Tot</th>
-              </React.Fragment>
-            ))}
-          </tr>
-        </thead>
-        <tbody className="text-left">
-          {scores.map(([round, roundScore]) => (
-            <tr
-              key={round}
-              className={classNames("border-t border-stone-200 tabular-nums", {
-                "bg-amber-100": round === currentRound,
-              })}
-            >
-              <td className="p-1">
-                {round} ({tricksInRound(state.rounds.length, round)})
-              </td>
-              {roundScore
-                ? roundScore.map((playerScore) => (
-                    <React.Fragment key={playerScore.id}>
-                      <td className="border-l border-stone-200 p-1">
-                        {playerScore.bid}
-                      </td>
+  const [accValue, setAccValue] = React.useState(`${currentRound}`);
 
-                      <td
-                        className={classNames(
-                          "p-1",
-                          playerScore.won === playerScore.bid
-                            ? "text-green-700"
-                            : "text-red-600"
-                        )}
+  React.useEffect(() => {
+    if (roundStage === "play") {
+      setAccValue(`${currentRound}`);
+    } else {
+      setAccValue(`${currentRound - 1}`);
+    }
+  }, [roundStage, currentRound]);
+
+  return (
+    <div className="overflow-x-auto overflow-hidden text-sm">
+      <div className="grid grid-flow-col auto-cols-fr gap-2 p-2">
+        <div></div>
+        {state.players.map((player) => (
+          <div key={player.id} className="text-right">
+            {player.name}
+          </div>
+        ))}
+      </div>
+
+      <Accordion.Root
+        type="single"
+        collapsible
+        className="space-y-2"
+        value={accValue}
+        onValueChange={setAccValue}
+      >
+        {scores.map(([round, scores]) => {
+          return (
+            <Accordion.Item
+              className="border border-stone-300 rounded-md data-[state=open]:shadow-sm"
+              value={`${round}`}
+              key={round}
+            >
+              <Accordion.Trigger className="group grid grid-flow-col auto-cols-fr gap-2 w-full text-left cursor-pointer p-2">
+                <div>
+                  R{round}{" "}
+                  <span className="text-stone-400">
+                    ({tricksInRound(state.rounds.length, round)})
+                  </span>
+                </div>
+                {scores?.map((score) => {
+                  return (
+                    <div
+                      key={score.id}
+                      className="font-bold font-mono text-right tabular-nums"
+                    >
+                      {score.cumulativeScore}
+                    </div>
+                  );
+                })}
+              </Accordion.Trigger>
+
+              <Accordion.Content className="p-2 grid grid-flow-col auto-cols-fr gap-2 overflow-hidden data-[state=closed]:animate-slide-up data-[state=open]:animate-slide-down [data-state=closed]>">
+                <div className="">
+                  <div className=""></div>
+
+                  <div className="text-stone-400">
+                    <div className="py-1">Bid</div>
+                    <div className="py-1">Got</div>
+                    <div className="py-1">Pts</div>
+                  </div>
+                </div>
+                {scores ? (
+                  scores.map((score) => {
+                    return (
+                      <div
+                        className="tabular-nums font-mono text-right"
+                        key={score.id}
                       >
-                        {playerScore.won}
-                      </td>
-                      <td className="p-1 bg-emerald-100">
-                        {playerScore.score}
-                      </td>
-                      <td className="p-1 bg-emerald-200 font-semibold">
-                        {playerScore.cumulativeScore}
-                      </td>
-                    </React.Fragment>
-                  ))
-                : state.players.map((player) => (
-                    <td
-                      colSpan={4}
-                      className="border-l border-stone-200 "
-                      key={player.id}
-                    ></td>
-                  ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                        <div className="py-1 text-stone-500">{score.bid}</div>
+                        <div
+                          className={classNames(
+                            "py-1",
+                            score.won === score.bid
+                              ? "text-green-700"
+                              : "text-red-700"
+                          )}
+                        >
+                          {score.won}
+                        </div>
+                        <div className="py-1">{score.score}</div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div></div>
+                )}
+              </Accordion.Content>
+            </Accordion.Item>
+          );
+        })}
+      </Accordion.Root>
     </div>
   );
 };

@@ -10,7 +10,7 @@ export const NumberButton = ({ disabled, ...props }: Props) => {
         "h-10 grid place-items-center font-semibold rounded border",
         disabled
           ? "bg-stone-100 border-stone-300 cursor-not-allowed"
-          : "bg-stone-200 border-stone-500 cursor-pointer "
+          : "bg-stone-50 border-stone-500 cursor-pointer "
       )}
       {...props}
     />

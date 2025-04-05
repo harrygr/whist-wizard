@@ -73,7 +73,11 @@ export const Game = ({ state, dispatch }: Props) => {
         />
       )}
 
-      <Scoreboard state={state} currentRound={currentRound.number} />
+      <Scoreboard
+        state={state}
+        currentRound={currentRound.number}
+        roundStage={roundStage}
+      />
     </div>
   );
 };

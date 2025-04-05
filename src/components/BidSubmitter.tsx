@@ -89,33 +89,30 @@ export const BidSubmitter = ({
               );
             })}
           </div>
-
-          {!Record.isEmptyRecord(currentBids) ? (
-            <div className="mt-4 flex justify-end">
-              <Button
-                kind="secondary"
-                size="small"
-                onClick={() => {
-                  const previousPlayerId =
-                    players[(playerIndex - 1 + players.length) % players.length]
-                      .id;
-                  clearErrors("bids");
-                  setValue(
-                    "bids",
-                    Record.remove(getValues("bids"), previousPlayerId)
-                  );
-                  setPlayerId(
-                    (playerIndex - 1 + players.length) % players.length
-                  );
-                }}
-                type="button"
-              >
-                Undo last
-              </Button>
-            </div>
-          ) : null}
         </div>
       )}
+
+      {!Record.isEmptyRecord(currentBids) ? (
+        <div className="mt-4 flex justify-end">
+          <Button
+            kind="secondary"
+            size="small"
+            onClick={() => {
+              const previousPlayerId =
+                players[(playerIndex - 1 + players.length) % players.length].id;
+              clearErrors("bids");
+              setValue(
+                "bids",
+                Record.remove(getValues("bids"), previousPlayerId)
+              );
+              setPlayerId((playerIndex - 1 + players.length) % players.length);
+            }}
+            type="button"
+          >
+            Undo last
+          </Button>
+        </div>
+      ) : null}
 
       <SubmissionSummary
         type="bid"
