@@ -1,8 +1,10 @@
 import React from "react";
-import { Player, playerReducer } from "../PlayerState";
+import { playerReducer } from "../PlayerState";
 import { AddPlayerForm } from "./AddPlayerForm";
 import { PlayerList } from "./PlayerList";
 import { NonEmptyArray, isNonEmptyArray } from "effect/Array";
+import { Player } from "../GameState";
+import { Button } from "./Button";
 
 interface Props {
   startGame: (players: NonEmptyArray<Player>) => void;
@@ -12,7 +14,7 @@ export const PlayerSetup = ({ startGame }: Props) => {
   const [players, dispatch] = React.useReducer(playerReducer, []);
 
   return (
-    <div>
+    <div className="max-w-screen-sm mx-auto space-y-4">
       <AddPlayerForm
         onAddPlayer={(player) => dispatch({ type: "addPlayer", player })}
       />
@@ -21,7 +23,7 @@ export const PlayerSetup = ({ startGame }: Props) => {
         removePlayer={(id) => dispatch({ type: "removePlayer", id })}
       />
 
-      <button
+      <Button
         type="button"
         onClick={() => {
           if (isNonEmptyArray(players)) {
@@ -30,7 +32,7 @@ export const PlayerSetup = ({ startGame }: Props) => {
         }}
       >
         Start Game
-      </button>
+      </Button>
     </div>
   );
 };

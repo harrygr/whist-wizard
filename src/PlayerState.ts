@@ -1,9 +1,5 @@
 import React from "react";
-
-export interface Player {
-  id: string;
-  name: string;
-}
+import { Player } from "./GameState";
 
 type State = Player[];
 
