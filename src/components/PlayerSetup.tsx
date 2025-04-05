@@ -6,6 +6,8 @@ import { Button } from "./Button";
 import { PlayerList } from "./PlayerList";
 import { Either, pipe, Schema } from "effect";
 
+const ROUNDS_IN_GAME = 13;
+
 interface Props {
   startGame: (players: NonEmptyArray<Player>, roundCount: number) => void;
 }
@@ -90,7 +92,7 @@ export const PlayerSetup = ({ startGame }: Props) => {
           if (isNonEmptyArray(state.players)) {
             localStorage.setItem("players", JSON.stringify(state.players));
 
-            startGame(state.players, 3);
+            startGame(state.players, ROUNDS_IN_GAME);
           }
         }}
       >
