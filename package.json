@@ -1,7 +1,8 @@
 {
-  "name": "contract-whist-scoreboard",
+  "name": "whist-wizard",
+  "description": "A scoreboard for the card game contract whist.",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
   "scripts": {
     "dev": "vite",

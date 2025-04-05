@@ -30,11 +30,19 @@ export const App = () => {
       {state.players.length > 0 ? (
         <Game state={state} dispatch={dispatch} />
       ) : (
-        <PlayerSetup
-          startGame={(players, roundCount) =>
-            dispatch({ type: "startGame", players, roundCount })
-          }
-        />
+        <div>
+          <div className="max-w-screen-sm mx-auto space-y-4">
+            <h1 className="text-3xl font-semibold mb-2">WhistWizard</h1>
+            <p className="mb-4 text-stone-500">
+              Keep score of your game of contract whist.
+            </p>
+          </div>
+          <PlayerSetup
+            startGame={(players, roundCount) =>
+              dispatch({ type: "startGame", players, roundCount })
+            }
+          />
+        </div>
       )}
     </div>
   );

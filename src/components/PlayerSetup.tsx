@@ -65,6 +65,8 @@ export const PlayerSetup = ({ startGame }: Props) => {
 
   return (
     <div className="max-w-screen-sm mx-auto space-y-4">
+      <h1 className="text-2xl">New Game</h1>
+
       <AddPlayerForm
         onAddPlayer={(player) => dispatch({ type: "addPlayer", player })}
       />
