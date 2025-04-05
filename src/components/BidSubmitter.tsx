@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import { Player, Round, TOTAL_ROUNDS, tricksInRound } from "../GameState";
+import { Player, Round, tricksInRound } from "../GameState";
 import React from "react";
 import { Option, pipe, Record, Array } from "effect";
 import { NumberButton } from "./NumberButton";
@@ -10,9 +10,15 @@ interface Props {
   players: Player[];
   submitBids: (bids: number[]) => void;
   round: Round;
+  roundCount: number;
 }
 
-export const BidSubmitter = ({ players, submitBids, round }: Props) => {
+export const BidSubmitter = ({
+  players,
+  submitBids,
+  round,
+  roundCount,
+}: Props) => {
   const dealerOffset = pipe(
     Option.fromNullable(
       players.findIndex((player) => player.id === round.dealer)
@@ -22,7 +28,7 @@ export const BidSubmitter = ({ players, submitBids, round }: Props) => {
     Option.getOrElse(() => 0)
   );
 
-  const totalTricks = tricksInRound(TOTAL_ROUNDS, round.number);
+  const totalTricks = tricksInRound(roundCount, round.number);
   const { handleSubmit, setValue, getValues, clearErrors, watch } = useForm<{
     bids: Record<string, number>;
   }>({

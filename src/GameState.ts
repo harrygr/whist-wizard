@@ -2,10 +2,8 @@ import { Array, Option, pipe } from "effect";
 import { nanoid } from "nanoid";
 import React from "react";
 
-export const TOTAL_ROUNDS = 13;
-
-const generateRounds = (players: Player[]): Round[] => {
-  const rounds = Array.makeBy(TOTAL_ROUNDS, (i): Round => {
+const generateRounds = (players: Player[], roundCount: number): Round[] => {
+  const rounds = Array.makeBy(roundCount, (i): Round => {
     const dealer = players[i % players.length].id;
     return {
       number: i + 1,
@@ -47,16 +45,20 @@ export interface State {
 }
 
 export type Action =
-  | { type: "startGame"; players: Player[] }
+  | { type: "startGame"; players: Player[]; roundCount: number }
   | { type: "setBids"; round: number; bids: number[] }
-  | { type: "setTricks"; round: number; tricks: number[] };
+  | { type: "setTricks"; round: number; tricks: number[] }
+  | { type: "resetGame" };
 
 export const gameReducer: React.Reducer<State, Action> = (state, action) => {
+  if (action.type === "resetGame") {
+    return { players: state.players, rounds: [] };
+  }
   if (action.type === "startGame") {
     return {
       ...state,
       players: action.players,
-      rounds: generateRounds(action.players),
+      rounds: generateRounds(action.players, action.roundCount),
     };
   }
   if (action.type === "setBids") {

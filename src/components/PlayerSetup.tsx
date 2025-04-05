@@ -6,7 +6,7 @@ import { Button } from "./Button";
 import { PlayerList } from "./PlayerList";
 
 interface Props {
-  startGame: (players: NonEmptyArray<Player>) => void;
+  startGame: (players: NonEmptyArray<Player>, roundCount: number) => void;
 }
 
 const initialPlayers = [
@@ -80,7 +80,7 @@ export const PlayerSetup = ({ startGame }: Props) => {
             return;
           }
           if (isNonEmptyArray(state.players)) {
-            startGame(state.players);
+            startGame(state.players, 3);
           }
         }}
       >

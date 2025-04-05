@@ -11,16 +11,14 @@ export const App = () => {
   });
 
   return (
-    <div className="container mx-auto px-4">
-      <div className="max-w-screen-sm mx-auto my-6">
-        <h1 className="font-semibold text-2xl">Contract Whist</h1>
-      </div>
-
+    <div className="container mx-auto px-4 py-8">
       {isNonEmptyArray(state.players) ? (
         <Game state={state} dispatch={dispatch} />
       ) : (
         <PlayerSetup
-          startGame={(players) => dispatch({ type: "startGame", players })}
+          startGame={(players, roundCount) =>
+            dispatch({ type: "startGame", players, roundCount })
+          }
         />
       )}
     </div>

@@ -23,7 +23,6 @@ export const AddPlayerForm = ({ onAddPlayer }: Props) => {
   const id = React.useId();
   return (
     <form onSubmit={onSubmit}>
-      <h2 className="text-xl mb-4">Add players</h2>
       <div className="flex gap-2 mb-4">
         <div className="">
           <label htmlFor={`${id}-name`} className="sr-only">

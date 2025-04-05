@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import { tricksInRound, State, TOTAL_ROUNDS } from "../GameState";
+import { tricksInRound, State } from "../GameState";
 import React from "react";
 import { calculateScores } from "../scoring";
 
@@ -50,7 +50,7 @@ export const Scoreboard = ({ state, currentRound }: Props) => {
               })}
             >
               <td className="p-1">
-                {round} ({tricksInRound(TOTAL_ROUNDS, round)})
+                {round} ({tricksInRound(state.rounds.length, round)})
               </td>
               {roundScore
                 ? roundScore.map((playerScore) => (

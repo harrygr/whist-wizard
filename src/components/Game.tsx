@@ -3,6 +3,7 @@ import { type Action, type State } from "../GameState";
 import { Scoreboard } from "./Scoreboard";
 import { BidSubmitter } from "./BidSubmitter";
 import { TrickSubmitter } from "./TrickSubmitter";
+import { GameResult } from "./GameResult";
 
 interface Props {
   state: State;
@@ -10,18 +11,25 @@ interface Props {
 }
 
 export const Game = ({ state, dispatch }: Props) => {
+  console.log(state);
   const currentRound = state.rounds.find(
     (round) =>
       round.score === null || round.score.every((score) => score.won === null)
   );
 
   if (!currentRound) {
-    return <p>Game over</p>;
+    return (
+      <GameResult
+        state={state}
+        newGame={() => dispatch({ type: "resetGame" })}
+      />
+    );
   }
 
   const roundStage = currentRound.score?.every((score) => score.bid !== null)
     ? "play"
     : "bid";
+
   return (
     <div>
       <div className="mb-4 max-w-screen-sm mx-auto">
@@ -36,6 +44,7 @@ export const Game = ({ state, dispatch }: Props) => {
             dispatch({ type: "setBids", round: currentRound.number, bids })
           }
           round={currentRound}
+          roundCount={state.rounds.length}
         />
       )}
       {roundStage === "play" && (
@@ -49,6 +58,7 @@ export const Game = ({ state, dispatch }: Props) => {
             })
           }
           round={currentRound}
+          roundCount={state.rounds.length}
         />
       )}
       <hr />
