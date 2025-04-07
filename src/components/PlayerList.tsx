@@ -7,6 +7,7 @@ import {
   DndContext,
   KeyboardSensor,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
@@ -17,6 +18,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { Icon } from "./Icon";
 
 interface Props {
   players: Player[];
@@ -34,11 +36,17 @@ export const PlayerList = ({ players, setPlayers, removePlayer }: Props) => {
       )
     );
   };
+  // const t = useSensor(TouchSensor, {
+  //   activationConstraint: { delay: 100, tolerance: 10 },
+  // });
 
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 10, tolerance: 5 },
     })
   );
 
@@ -116,16 +124,22 @@ const PlayerListItem = ({ player, removePlayer }: PlayerListItemProps) => {
       )}
       style={style}
     >
-      {player.name}{" "}
-      <div className="flex items-center gap-2">
+      <button
+        className="touch-manipulation cursor-move flex-grow text-left"
+        type="button"
+        {...listeners}
+        {...attributes}
+      >
+        {player.name}{" "}
+      </button>
+      <div className="flex items-center gap-2 ">
         <button
+          type="button"
           onClick={() => removePlayer(player.id)}
           className="cursor-pointer"
         >
-          🗑️
-        </button>
-        <button {...attributes} {...listeners} className="cursor-move">
-          ⬜️
+          <span className="sr-only">Delete {player.name}</span>
+          <Icon name="cross-1" className="w-5 h-5" />
         </button>
       </div>
     </li>

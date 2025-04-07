@@ -9,7 +9,9 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "vitest"
+    "test": "vitest",
+    "add-icon": "npx @sly-cli/sly add ",
+    "gen:icons": "esrun bin/buildIcons.ts "
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -32,7 +34,10 @@
     "eslint": "^9.21.0",
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-refresh": "^0.4.19",
+    "esrun": "^3.2.26",
+    "glob": "^11.0.1",
     "globals": "^15.15.0",
+    "node-html-parser": "^7.0.1",
     "typescript": "~5.7.2",
     "typescript-eslint": "^8.24.1",
     "vite": "^6.2.0",
