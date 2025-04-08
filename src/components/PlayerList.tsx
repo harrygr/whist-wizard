@@ -1,5 +1,4 @@
 import { Player } from "../GameState";
-import React from "react";
 import { Array, pipe, Option } from "effect";
 import classNames from "classnames";
 import {
@@ -23,9 +22,8 @@ import { Icon } from "./Icon";
 interface Props {
   players: Player[];
   setPlayers: (players: Player[]) => void;
-  removePlayer: (id: string) => void;
 }
-export const PlayerList = ({ players, setPlayers, removePlayer }: Props) => {
+export const PlayerList = ({ players, setPlayers }: Props) => {
   const moveCard = (dragIndex: number, hoverIndex: number) => {
     setPlayers(
       pipe(
@@ -36,9 +34,6 @@ export const PlayerList = ({ players, setPlayers, removePlayer }: Props) => {
       )
     );
   };
-  // const t = useSensor(TouchSensor, {
-  //   activationConstraint: { delay: 100, tolerance: 10 },
-  // });
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -50,18 +45,24 @@ export const PlayerList = ({ players, setPlayers, removePlayer }: Props) => {
     })
   );
 
-  const renderPlayer = React.useCallback((player: Player, index: number) => {
+  const renderPlayer = (player: Player, index: number) => {
     return (
       <PlayerListItem
         player={player}
         key={player.id}
         index={index}
         moveCard={moveCard}
-        removePlayer={() => removePlayer(player.id)}
+        removePlayer={() => {
+          const filteredPlayers = Array.filter(
+            players,
+            (p) => p.id !== player.id
+          );
+
+          setPlayers(filteredPlayers);
+        }}
       />
     );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  };
 
   return (
     <div>
@@ -120,7 +121,7 @@ const PlayerListItem = ({ player, removePlayer }: PlayerListItemProps) => {
       key={player.id}
       className={classNames(
         "border border-stone-300 py-2 px-4 rounded-lg bg-white flex justify-between gap-4",
-        { "shadow-lg opacity-80 z-50 relative": isDragging }
+        { "shadow-md opacity-80 z-50 relative": isDragging }
       )}
       style={style}
     >
@@ -130,7 +131,7 @@ const PlayerListItem = ({ player, removePlayer }: PlayerListItemProps) => {
         {...listeners}
         {...attributes}
       >
-        {player.name}{" "}
+        {player.name}
       </button>
       <div className="flex items-center gap-2 ">
         <button

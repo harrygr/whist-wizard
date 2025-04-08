@@ -2,6 +2,9 @@ import { Array, Option, pipe, Schema } from "effect";
 import { nanoid } from "nanoid";
 import React from "react";
 
+export const DEFAULT_BONUS = 10;
+export const DEFAULT_ROUNDS_IN_GAME = 13;
+
 const generateRounds = (players: Player[], roundCount: number): Round[] => {
   const rounds = Array.makeBy(roundCount, (i): Round => {
     const dealer = players[i % players.length].id;
@@ -39,11 +42,18 @@ export type Round = typeof Round.Type;
 export const State = Schema.Struct({
   players: Schema.Array(Player),
   rounds: Schema.Array(Round),
+  bonus: Schema.Number.pipe(Schema.int()),
 });
 export type State = typeof State.Type;
 
+export type GameStateConfig = {
+  players: Player[];
+  roundCount: number;
+  bonus: number;
+};
+
 export type Action =
-  | { type: "startGame"; players: Player[]; roundCount: number }
+  | ({ type: "startGame" } & GameStateConfig)
   | { type: "setBids"; round: number; bids: number[] }
   | { type: "setTricks"; round: number; tricks: number[] }
   | { type: "resumeGame"; state: State }
@@ -54,13 +64,14 @@ export const gameReducer: React.Reducer<State, Action> = (state, action) => {
     return action.state;
   }
   if (action.type === "resetGame") {
-    return { players: [], rounds: [] };
+    return { players: [], rounds: [], bonus: DEFAULT_BONUS };
   }
   if (action.type === "startGame") {
     return {
       ...state,
       players: action.players,
       rounds: generateRounds(action.players, action.roundCount),
+      bonus: action.bonus,
     };
   }
   if (action.type === "setBids") {

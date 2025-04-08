@@ -16,11 +16,10 @@ export const BidSubmitterDialog = (props: Props) => {
 
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
-      <div className="grid place-items-center p-4">
-        <Dialog.Trigger asChild>
-          <Button type="button">Submit Bids</Button>
-        </Dialog.Trigger>
-      </div>
+      <Dialog.Trigger asChild>
+        <Button type="button">Submit Bids</Button>
+      </Dialog.Trigger>
+
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/30" />
         <Dialog.Content className="fixed top-1/2 left-1/2 w-full max-w-md p-6 bg-white rounded-lg shadow-lg transform -translate-x-1/2 -translate-y-1/2">

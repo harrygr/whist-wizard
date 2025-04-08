@@ -1,13 +1,13 @@
 import React from "react";
 import { gameReducer, State } from "./GameState";
 import { Game } from "./components/Game";
-import { PlayerSetup } from "./components/PlayerSetup";
+import { PlayerSetup } from "./components/GameSetup";
 import { Either, pipe, Schema } from "effect";
 
 export const App = () => {
   const [state, dispatch] = React.useReducer(
     gameReducer,
-    { players: [], rounds: [] },
+    { players: [], rounds: [], bonus: 10 },
     (init: State) => {
       return pipe(
         localStorage.getItem("currentGame") ?? "{}",
@@ -38,9 +38,7 @@ export const App = () => {
             </p>
           </div>
           <PlayerSetup
-            startGame={(players, roundCount) =>
-              dispatch({ type: "startGame", players, roundCount })
-            }
+            startGame={(config) => dispatch({ type: "startGame", ...config })}
           />
         </div>
       )}

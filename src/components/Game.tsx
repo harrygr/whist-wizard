@@ -33,10 +33,18 @@ export const Game = ({ state, dispatch }: Props) => {
   return (
     <div>
       <div className="mb-4 flex justify-between gap-4">
-        <div>
-          <p>Current round: {currentRound.number}</p>
-          <p>Stage: {roundStage}</p>
-        </div>
+        <dl className="bg-stone-50 border border-stone-300 p-4 rounded-lg text-sm grid grid-cols-2 gap-x-2">
+          <dd className="font-semibold">Current round</dd>
+          <dt className="text-right">{currentRound.number}</dt>
+
+          <dd className="font-semibold">Stage</dd>
+          <dt className="text-right">{roundStage}</dt>
+
+          <dd className="font-semibold">Dealer</dd>
+          <dt className="text-right">
+            {state.players.find((p) => p.id === currentRound.dealer)?.name}
+          </dt>
+        </dl>
         <div>
           <Button
             type="button"

@@ -13,13 +13,13 @@ interface Props {
 export const Scoreboard = ({ state, currentRound, roundStage }: Props) => {
   const scores = calculateScores(state.players, state.rounds);
 
-  const [accValue, setAccValue] = React.useState(`${currentRound}`);
+  const [roundIndex, setAccValue] = React.useState(currentRound);
 
   React.useEffect(() => {
     if (roundStage === "play") {
-      setAccValue(`${currentRound}`);
+      setAccValue(currentRound);
     } else {
-      setAccValue(`${currentRound - 1}`);
+      setAccValue(currentRound);
     }
   }, [roundStage, currentRound]);
 
@@ -29,6 +29,11 @@ export const Scoreboard = ({ state, currentRound, roundStage }: Props) => {
         <div></div>
         {state.players.map((player) => (
           <div key={player.id} className="text-right">
+            {player.id === state.rounds[currentRound - 1]?.dealer ? (
+              <span className="mr-0.5" title="Dealer">
+                🃏
+              </span>
+            ) : null}{" "}
             {player.name}
           </div>
         ))}
@@ -38,8 +43,8 @@ export const Scoreboard = ({ state, currentRound, roundStage }: Props) => {
         type="single"
         collapsible
         className="space-y-2"
-        value={accValue}
-        onValueChange={setAccValue}
+        value={`${roundIndex}`}
+        onValueChange={(v) => setAccValue(parseInt(v, 10))}
       >
         {scores.map(([round, scores]) => {
           return (
