@@ -1,10 +1,11 @@
 import { useForm, Controller } from "react-hook-form";
-import { Player, Round, tricksInRound } from "../GameState";
+import { Player, Round } from "../GameState";
 import React from "react";
 import { Option, pipe, Array, Record } from "effect";
 import { NumberButton } from "./NumberButton";
 import { SubmissionSummary } from "./SubmissionSummary";
 import { Button } from "./Button";
+import { tricksInRound } from "../util/tricksInRound";
 
 interface Props {
   players: readonly Player[];
@@ -20,20 +21,18 @@ export const TrickSubmitter = ({
   roundCount,
 }: Props) => {
   const dealerOffset = pipe(
-    Option.fromNullable(
-      players.findIndex((player) => player.id === round.dealer)
-    ),
+    players,
+    Array.findFirstIndex((player) => player.id === round.dealer),
     Option.filter((index) => index >= 0),
-    Option.map((index) => (index - 1 + players.length) % players.length),
+    Option.map((index) => (index + 1 + players.length) % players.length),
     Option.getOrElse(() => 0)
   );
 
-  const totalTricks = tricksInRound(roundCount, round.number);
+  const totalTricksInRound = tricksInRound(roundCount, round.number);
   const { handleSubmit, clearErrors, control, trigger, watch } = useForm<{
     tricks: Record<string, number>;
-  }>({
-    defaultValues: { tricks: {} },
-  });
+  }>({ defaultValues: { tricks: {} } });
+
   const currentTricks = watch("tricks");
 
   const [playerIndex, setPlayerId] = React.useState(dealerOffset);
@@ -55,21 +54,22 @@ export const TrickSubmitter = ({
       })}
     >
       <p className="text-stone-500 mb-4">
-        Round {round.number} • {totalTricks} cards
+        Round {round.number} • {totalTricksInRound} cards
       </p>
 
       <Controller
         name="tricks"
         control={control}
         rules={{
-          validate: (value) => {
-            return Object.values(value).reduce(
-              (acc, trick) => acc + trick,
-              0
-            ) === totalTricks
-              ? undefined
-              : "Total tricks must equal the total tricks in the round";
-          },
+          validate: (tricks) =>
+            pipe(
+              tricks,
+              Record.reduce(0, (acc, trick) => acc + trick),
+              (totalSubmitted) =>
+                totalSubmitted === totalTricksInRound
+                  ? undefined
+                  : "Total tricks must equal the total tricks in the round"
+            ),
         }}
         render={({ field: { onChange, value }, fieldState: { error } }) => (
           <div>
@@ -78,7 +78,7 @@ export const TrickSubmitter = ({
                 <h3 className="text-xl mb-4">{currentPlayer.name}</h3>
 
                 <div className="grid gap-4 grid-cols-4">
-                  {Array.makeBy(totalTricks + 1, (trickValue) => {
+                  {Array.makeBy(totalTricksInRound + 1, (trickValue) => {
                     return (
                       <NumberButton
                         key={trickValue}
@@ -130,12 +130,10 @@ export const TrickSubmitter = ({
 
       <SubmissionSummary
         type="trick"
-        totalTricks={totalTricks}
-        currentSubmissions={Array.filterMap(players, (player) =>
-          pipe(
-            Option.fromNullable(currentTricks[player.id]),
-            Option.map((trick) => [player, trick])
-          )
+        totalTricks={totalTricksInRound}
+        currentSubmissions={Array.map(
+          players,
+          (player) => [player, currentTricks[player.id] ?? null] as const
         )}
       />
 

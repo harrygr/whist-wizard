@@ -1,8 +1,9 @@
-import { State, tricksInRound } from "../GameState";
+import { State } from "../GameState";
 import React from "react";
 import { calculateScores } from "../scoring";
 import { Accordion } from "radix-ui";
 import classNames from "classnames";
+import { tricksInRound } from "../util/tricksInRound";
 
 interface Props {
   state: State;
@@ -13,13 +14,14 @@ interface Props {
 export const Scoreboard = ({ state, currentRound, roundStage }: Props) => {
   const scores = calculateScores(state.players, state.rounds);
 
-  const [roundIndex, setAccValue] = React.useState(currentRound);
+  const [roundIndex, setRoundIndex] = React.useState(`${currentRound}`);
 
   React.useEffect(() => {
     if (roundStage === "play") {
-      setAccValue(currentRound);
+      setRoundIndex(`${currentRound}`);
     } else {
-      setAccValue(currentRound);
+      // If the round stage is "bid", we want to show the previous round
+      setRoundIndex(`${currentRound - 1}`);
     }
   }, [roundStage, currentRound]);
 
@@ -43,8 +45,8 @@ export const Scoreboard = ({ state, currentRound, roundStage }: Props) => {
         type="single"
         collapsible
         className="space-y-2"
-        value={`${roundIndex}`}
-        onValueChange={(v) => setAccValue(parseInt(v, 10))}
+        value={roundIndex}
+        onValueChange={(v) => setRoundIndex(v)}
       >
         {scores.map(([round, scores]) => {
           return (

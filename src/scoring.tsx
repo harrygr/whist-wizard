@@ -41,12 +41,12 @@ export const calculateScores = (
     }),
     Array.mapAccum(
       players.map(() => 0),
-      (acc: Array<number | null>, roundScores) => {
+      (playerTotals: Array<number | null>, roundScores) => {
         if (!roundScores) {
-          return [acc, null];
+          return [playerTotals, null];
         }
         const roundScoresWithCumulative = pipe(
-          Array.zip(acc, roundScores),
+          Array.zip(playerTotals, roundScores),
           Array.map(
             ([playerTotal, playerScore]): AccumlatedScore => ({
               ...playerScore,

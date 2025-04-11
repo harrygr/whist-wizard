@@ -3,7 +3,7 @@ import { Player } from "../GameState";
 
 interface Props {
   totalTricks: number;
-  currentSubmissions: Array<[Player, number]>;
+  currentSubmissions: Array<[Player, number | null]>;
   type: "bid" | "trick";
 }
 
@@ -21,13 +21,13 @@ export const SubmissionSummary = ({
       {currentSubmissions.map(([player, amount]) => (
         <div key={player.id} className="flex justify-between">
           <span>{player.name}</span>
-          <span className="tabular-nums">{amount}</span>
+          <span className="tabular-nums">{amount ?? "-"}</span>
         </div>
       ))}
       <div className="flex justify-between pt-4 border-t border-stone-300 mt-4 pb-6">
         <span>Total {type}s</span>
         <span className="tabular-nums">
-          {currentSubmissions.reduce((acc, [, n]) => n + acc, 0)} /{" "}
+          {currentSubmissions.reduce((acc, [, n]) => (n ?? 0) + acc, 0)} /{" "}
           {totalTricks}
         </span>
       </div>

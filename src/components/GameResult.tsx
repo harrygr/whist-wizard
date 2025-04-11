@@ -1,6 +1,6 @@
 import { State } from "../GameState";
 import { calculateScores } from "../scoring";
-import { Array, pipe, Option, Schema, Effect, Order } from "effect";
+import { Array, pipe, Option, Schema, Either, Order } from "effect";
 import { Button } from "./Button";
 import classNames from "classnames";
 
@@ -18,13 +18,15 @@ export const GameResult = ({ state, newGame }: Props) => {
     result,
     Array.filterMap(([, score]) => Option.fromNullable(score)),
     Array.last,
-    Effect.map((scores) =>
+    Option.map((scores) =>
       scores.map(({ cumulativeScore }) => cumulativeScore)
     ),
-    Effect.flatMap(Schema.decodeUnknown(FinalScoresSchema)),
-    Effect.map((scores) => Array.zip(state.players, scores)),
-    Effect.map(Array.sort(Order.mapInput(Order.number, ([, score]) => -score))),
-    Effect.runSync
+    Either.fromOption(() => "no scores"),
+    Either.flatMap(Schema.decodeUnknownEither(FinalScoresSchema)),
+    Either.map((scores) => Array.zip(state.players, scores)),
+    Either.map(Array.sort(Order.mapInput(Order.number, ([, score]) => -score))),
+    Either.mapLeft(() => console.error("Invalid scores")),
+    Either.getOrThrow
   );
 
   return (

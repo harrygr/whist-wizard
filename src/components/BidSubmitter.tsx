@@ -1,10 +1,11 @@
 import { useForm } from "react-hook-form";
-import { Player, Round, tricksInRound } from "../GameState";
+import { Player, Round } from "../GameState";
 import React from "react";
 import { Option, pipe, Record, Array } from "effect";
 import { NumberButton } from "./NumberButton";
 import { Button } from "./Button";
 import { SubmissionSummary } from "./SubmissionSummary";
+import { tricksInRound } from "../util/tricksInRound";
 
 interface Props {
   players: readonly Player[];
@@ -20,20 +21,18 @@ export const BidSubmitter = ({
   roundCount,
 }: Props) => {
   const dealerOffset = pipe(
-    Option.fromNullable(
-      players.findIndex((player) => player.id === round.dealer)
-    ),
+    players,
+    Array.findFirstIndex((player) => player.id === round.dealer),
     Option.filter((index) => index >= 0),
-    Option.map((index) => (index - 1 + players.length) % players.length),
+    Option.map((index) => (index + 1 + players.length) % players.length),
     Option.getOrElse(() => 0)
   );
 
   const totalTricks = tricksInRound(roundCount, round.number);
   const { handleSubmit, setValue, getValues, clearErrors, watch } = useForm<{
     bids: Record<string, number>;
-  }>({
-    defaultValues: { bids: {} },
-  });
+  }>({ defaultValues: { bids: {} } });
+
   const currentBids = watch("bids");
   const bidsSubmitted = Object.values(currentBids).length;
 
@@ -117,11 +116,9 @@ export const BidSubmitter = ({
       <SubmissionSummary
         type="bid"
         totalTricks={totalTricks}
-        currentSubmissions={Array.filterMap(players, (player) =>
-          pipe(
-            Option.fromNullable(currentBids[player.id]),
-            Option.map((trick) => [player, trick])
-          )
+        currentSubmissions={Array.map(
+          players,
+          (player) => [player, currentBids[player.id]] as const
         )}
       />
 

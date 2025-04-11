@@ -1,22 +1,10 @@
 import { Array, Option, pipe, Schema } from "effect";
 import { nanoid } from "nanoid";
 import React from "react";
+import { generateRounds } from "./util/generateRounds";
 
 export const DEFAULT_BONUS = 10;
 export const DEFAULT_ROUNDS_IN_GAME = 13;
-
-const generateRounds = (players: Player[], roundCount: number): Round[] => {
-  const rounds = Array.makeBy(roundCount, (i): Round => {
-    const dealer = players[i % players.length].id;
-    return {
-      number: i + 1,
-      dealer,
-      score: null,
-    };
-  });
-
-  return rounds;
-};
 
 const Player = Schema.Struct({
   id: Schema.String,
@@ -123,15 +111,4 @@ export const gameReducer: React.Reducer<State, Action> = (state, action) => {
   }
 
   return state;
-};
-
-export const tricksInRound = (totalRounds: number, round: number): number => {
-  if (round > totalRounds) {
-    throw new Error(
-      `Invalid round number "${round}" for ${totalRounds} rounds`
-    );
-  }
-  const halfRounds = Math.ceil((totalRounds + 1) / 2);
-
-  return round <= halfRounds ? halfRounds - round + 1 : round - halfRounds + 1;
 };

@@ -19,7 +19,7 @@ export const Game = ({ state, dispatch }: Props) => {
       round.score === null || round.score.every((score) => score.won === null)
   );
 
-  if (!Option.isNone(currentRound)) {
+  if (Option.isNone(currentRound)) {
     return (
       <GameResult
         state={state}
