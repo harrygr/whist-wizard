@@ -30,6 +30,7 @@ const PlayerRoundResult = Schema.Struct({
   bid: Schema.Number,
   won: Schema.Union(Schema.Null, Schema.Number),
 });
+
 export type PlayerRoundResult = typeof PlayerRoundResult.Type;
 
 const Round = Schema.Struct({
@@ -113,10 +114,7 @@ export const gameReducer: React.Reducer<State, Action> = (state, action) => {
           Option.getOrElse(() => round.score)
         );
 
-        return {
-          ...round,
-          score,
-        };
+        return { ...round, score };
       }
       return round;
     });

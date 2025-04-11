@@ -5,6 +5,7 @@ import { GameResult } from "./GameResult";
 import { Button } from "./Button";
 import { BidSubmitterDialog } from "./BidSubmitterDialog";
 import { TrickSubmitterDialog } from "./TrickSubmitterDialog";
+import { Array, Option, pipe } from "effect";
 
 interface Props {
   state: State;
@@ -12,12 +13,13 @@ interface Props {
 }
 
 export const Game = ({ state, dispatch }: Props) => {
-  const currentRound = state.rounds.find(
+  const currentRound = Array.findFirst(
+    state.rounds,
     (round) =>
       round.score === null || round.score.every((score) => score.won === null)
   );
 
-  if (!currentRound) {
+  if (!Option.isNone(currentRound)) {
     return (
       <GameResult
         state={state}
@@ -26,66 +28,88 @@ export const Game = ({ state, dispatch }: Props) => {
     );
   }
 
-  const roundStage = currentRound.score?.every((score) => score.bid !== null)
-    ? "play"
-    : "bid";
+  const roundStage = pipe(
+    currentRound,
+    Option.map((r) =>
+      r.score?.every((score) => score.bid !== null) ? "play" : "bid"
+    )
+  );
 
   return (
     <div>
-      <div className="mb-4 flex justify-between gap-4">
-        <dl className="bg-stone-50 border border-stone-300 p-4 rounded-lg text-sm grid grid-cols-2 gap-x-2">
-          <dd className="font-semibold">Current round</dd>
-          <dt className="text-right">{currentRound.number}</dt>
+      {pipe(
+        Option.all([currentRound, roundStage]),
+        Option.map(([round, stage]) => (
+          <div className="mb-4 flex justify-between gap-4">
+            <dl className="bg-stone-50 border border-stone-300 p-4 rounded-lg text-sm grid grid-cols-[auto_1fr] gap-x-6">
+              <dd className="font-semibold">Current round</dd>
+              <dt className="text-right">{round.number}</dt>
 
-          <dd className="font-semibold">Stage</dd>
-          <dt className="text-right">{roundStage}</dt>
+              <dd className="font-semibold">Stage</dd>
+              <dt className="text-right">{stage}</dt>
 
-          <dd className="font-semibold">Dealer</dd>
-          <dt className="text-right">
-            {state.players.find((p) => p.id === currentRound.dealer)?.name}
-          </dt>
-        </dl>
-        <div>
-          <Button
-            type="button"
-            kind="secondary"
-            onClick={() => dispatch({ type: "resetGame" })}
-          >
-            Exit
-          </Button>
-        </div>
-      </div>
-
-      {roundStage === "bid" && (
-        <BidSubmitterDialog
-          players={state.players}
-          submitBids={(bids) =>
-            dispatch({ type: "setBids", round: currentRound.number, bids })
-          }
-          round={currentRound}
-          roundCount={state.rounds.length}
-        />
-      )}
-      {roundStage === "play" && (
-        <TrickSubmitterDialog
-          players={state.players}
-          submitTricks={(tricks) =>
-            dispatch({
-              type: "setTricks",
-              round: currentRound.number,
-              tricks,
-            })
-          }
-          round={currentRound}
-          roundCount={state.rounds.length}
-        />
+              <dd className="font-semibold">Dealer</dd>
+              <dt className="text-right">
+                {state.players.find((p) => p.id === round.dealer)?.name}
+              </dt>
+            </dl>
+            <div>
+              <Button
+                type="button"
+                kind="secondary"
+                onClick={() => dispatch({ type: "resetGame" })}
+              >
+                Exit
+              </Button>
+            </div>
+          </div>
+        )),
+        Option.getOrNull
       )}
 
-      <Scoreboard
-        state={state}
-        currentRound={currentRound.number}
-        roundStage={roundStage}
-      />
+      {pipe(
+        Option.all([roundStage, currentRound]),
+        Option.filter(([stage]) => stage === "bid"),
+        Option.map(([, round]) => (
+          <BidSubmitterDialog
+            players={state.players}
+            submitBids={(bids) =>
+              dispatch({ type: "setBids", round: round.number, bids })
+            }
+            round={round}
+            roundCount={state.rounds.length}
+          />
+        )),
+        Option.getOrNull
+      )}
+
+      {pipe(
+        Option.all([roundStage, currentRound]),
+        Option.filter(([stage]) => stage === "play"),
+        Option.map(([, round]) => (
+          <TrickSubmitterDialog
+            players={state.players}
+            submitTricks={(tricks) =>
+              dispatch({ type: "setTricks", round: round.number, tricks })
+            }
+            round={round}
+            roundCount={state.rounds.length}
+          />
+        )),
+        Option.getOrNull
+      )}
+
+      {pipe(
+        Option.all([roundStage, currentRound]),
+        Option.map(([stage, round]) => (
+          <Scoreboard
+            state={state}
+            currentRound={round.number}
+            roundStage={stage}
+          />
+        )),
+        Option.getOrNull
+      )}
     </div>
   );
 };
