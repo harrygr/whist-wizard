@@ -5,7 +5,7 @@ import {
   closestCenter,
   DndContext,
   KeyboardSensor,
-  PointerSensor,
+  MouseSensor,
   TouchSensor,
   useSensor,
   useSensors,
@@ -36,12 +36,12 @@ export const PlayerList = ({ players, setPlayers }: Props) => {
   };
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    }),
+    useSensor(MouseSensor),
     useSensor(TouchSensor, {
       activationConstraint: { delay: 10, tolerance: 5 },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
     })
   );
 
@@ -120,7 +120,7 @@ const PlayerListItem = ({ player, removePlayer }: PlayerListItemProps) => {
       ref={setNodeRef}
       key={player.id}
       className={classNames(
-        "border border-stone-300 py-2 px-4 rounded-lg bg-white flex justify-between gap-4",
+        "border border-stone-300 py-2 px-4 rounded-lg bg-white flex justify-between gap-4 select-none",
         { "shadow-md opacity-80 z-50 relative": isDragging }
       )}
       style={style}
