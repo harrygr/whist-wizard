@@ -34,7 +34,7 @@
     "eslint": "^9.21.0",
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-refresh": "^0.4.19",
-    "esrun": "^3.2.26",
+    "esrun": "^0.0.1",
     "glob": "^11.0.1",
     "globals": "^15.15.0",
     "node-html-parser": "^7.0.1",
