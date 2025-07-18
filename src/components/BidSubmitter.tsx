@@ -12,6 +12,8 @@ interface Props {
   submitBids: (bids: number[]) => void;
   round: Round;
   roundCount: number;
+  existingBids?: number[];
+  onSubmitComplete?: () => void;
 }
 
 export const BidSubmitter = ({
@@ -19,6 +21,8 @@ export const BidSubmitter = ({
   submitBids,
   round,
   roundCount,
+  existingBids,
+  onSubmitComplete,
 }: Props) => {
   const dealerOffset = pipe(
     players,
@@ -29,14 +33,25 @@ export const BidSubmitter = ({
   );
 
   const totalTricks = tricksInRound(roundCount, round.number);
+
+  // Initialize with existing bids if provided
+  const initialBids = existingBids
+    ? players.reduce((acc, player, index) => {
+        acc[player.id] = existingBids[index];
+        return acc;
+      }, {} as Record<string, number>)
+    : {};
+
   const { handleSubmit, setValue, getValues, clearErrors, watch } = useForm<{
     bids: Record<string, number>;
-  }>({ defaultValues: { bids: {} } });
+  }>({ defaultValues: { bids: initialBids } });
 
   const currentBids = watch("bids");
   const bidsSubmitted = Object.values(currentBids).length;
 
-  const [playerIndex, setPlayerId] = React.useState(dealerOffset);
+  const [playerIndex, setPlayerId] = React.useState(
+    existingBids ? players.length : dealerOffset
+  );
   const readyToSubmit = bidsSubmitted === players.length;
 
   const currentPlayer = players[playerIndex];
@@ -60,7 +75,8 @@ export const BidSubmitter = ({
     <form
       onSubmit={handleSubmit((values) => {
         const bids = players.map((player) => values.bids[player.id]);
-        return submitBids(bids);
+        submitBids(bids);
+        onSubmitComplete?.();
       })}
     >
       <p className="text-stone-500 mb-4">
@@ -69,7 +85,9 @@ export const BidSubmitter = ({
 
       {readyToSubmit ? null : (
         <div>
-          <h3 className="text-xl mb-4">{currentPlayer.name}</h3>
+          <h3 className="text-xl mb-4 inline-block bg-fuchsia-400/40 rounded-lg px-4 text-fuchsia-800 py-1">
+            {currentPlayer.name}
+          </h3>
           <div className="grid gap-4 grid-cols-4">
             {Array.makeBy(totalTricks + 1, (bidValue) => {
               const isDisabled = isLastToBid
@@ -124,12 +142,7 @@ export const BidSubmitter = ({
 
       {readyToSubmit ? (
         <div className="mb-4">
-          <button
-            type="submit"
-            className="px-6 py-2 border rounded bg-fuchsia-300 border-fuchsia-400 text-fushia-500 cursor-pointer"
-          >
-            Play
-          </button>
+          <Button type="submit">Play</Button>
         </div>
       ) : null}
     </form>

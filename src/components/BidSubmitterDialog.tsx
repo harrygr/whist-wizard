@@ -1,6 +1,6 @@
 import { Dialog } from "radix-ui";
 import React from "react";
-import { Button } from "./Button";
+
 import { Player, Round } from "../GameState";
 import { BidSubmitter } from "./BidSubmitter";
 
@@ -9,6 +9,8 @@ interface Props {
   submitBids: (bids: number[]) => void;
   round: Round;
   roundCount: number;
+  existingBids?: number[];
+  trigger: React.ReactNode;
 }
 
 export const BidSubmitterDialog = (props: Props) => {
@@ -16,20 +18,27 @@ export const BidSubmitterDialog = (props: Props) => {
 
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger asChild>
-        <Button type="button">Submit Bids</Button>
-      </Dialog.Trigger>
+      <Dialog.Trigger asChild>{props.trigger}</Dialog.Trigger>
 
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/30" />
         <Dialog.Content className="fixed top-1/2 left-1/2 w-full max-w-md p-6 bg-white rounded-lg shadow-lg transform -translate-x-1/2 -translate-y-1/2">
-          <Dialog.Title className="text-2xl mb-2">Submit Bids</Dialog.Title>
+          <Dialog.Title className="text-2xl mb-2">
+            {props.existingBids ? "Edit Bids" : "Submit Bids"}
+          </Dialog.Title>
 
           <Dialog.Description className="sr-only">
             Submit player bids for round {props.round.number}
           </Dialog.Description>
 
-          <BidSubmitter {...props} />
+          <BidSubmitter
+            players={props.players}
+            submitBids={props.submitBids}
+            round={props.round}
+            roundCount={props.roundCount}
+            existingBids={props.existingBids}
+            onSubmitComplete={() => setOpen(false)}
+          />
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>

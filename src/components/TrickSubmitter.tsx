@@ -6,12 +6,15 @@ import { NumberButton } from "./NumberButton";
 import { SubmissionSummary } from "./SubmissionSummary";
 import { Button } from "./Button";
 import { tricksInRound } from "../util/tricksInRound";
+import { isNil } from "../util/isNil";
 
 interface Props {
   players: readonly Player[];
   submitTricks: (bids: number[]) => void;
   round: Round;
   roundCount: number;
+  existingTricks?: (number | null)[];
+  onSubmitComplete?: () => void;
 }
 
 export const TrickSubmitter = ({
@@ -19,6 +22,8 @@ export const TrickSubmitter = ({
   submitTricks,
   round,
   roundCount,
+  existingTricks,
+  onSubmitComplete,
 }: Props) => {
   const dealerOffset = pipe(
     players,
@@ -29,9 +34,17 @@ export const TrickSubmitter = ({
   );
 
   const totalTricksInRound = tricksInRound(roundCount, round.number);
+
+  const initialTricks = pipe(
+    Array.zip(players, existingTricks ?? []),
+    Array.map(([player, tricks]) => [player.id, tricks] as const),
+    Array.filter((r): r is [string, number] => !isNil(r[1])),
+    Record.fromEntries
+  );
+
   const { handleSubmit, clearErrors, control, trigger, watch } = useForm<{
     tricks: Record<string, number>;
-  }>({ defaultValues: { tricks: {} } });
+  }>({ defaultValues: { tricks: initialTricks } });
 
   const currentTricks = watch("tricks");
 
@@ -50,6 +63,7 @@ export const TrickSubmitter = ({
     <form
       onSubmit={handleSubmit((values) => {
         const tricks = players.map((player) => values.tricks[player.id]);
+        onSubmitComplete?.();
         return submitTricks(tricks);
       })}
     >
@@ -68,14 +82,16 @@ export const TrickSubmitter = ({
               (totalSubmitted) =>
                 totalSubmitted === totalTricksInRound
                   ? undefined
-                  : "Total tricks must equal the total tricks in the round"
+                  : `Total tricks must equal the total tricks in the round (${totalTricksInRound})`
             ),
         }}
         render={({ field: { onChange, value }, fieldState: { error } }) => (
           <div>
             {!readyToSubmit ? (
               <>
-                <h3 className="text-xl mb-4">{currentPlayer.name}</h3>
+                <h3 className="text-xl mb-4 inline-block bg-fuchsia-400/40 rounded-lg px-4 text-fuchsia-800 py-1">
+                  {currentPlayer.name}
+                </h3>
 
                 <div className="grid gap-4 grid-cols-4">
                   {Array.makeBy(totalTricksInRound + 1, (trickValue) => {
@@ -101,7 +117,11 @@ export const TrickSubmitter = ({
                 </div>
               </>
             ) : null}
-            {error && <div className="text-red-500 mt-2">{error.message}</div>}
+            {error && (
+              <div className="text-red-500 mt-2 bg-red-500/10 py-1 px-3 inline-block rounded-lg text-sm">
+                {error.message}
+              </div>
+            )}
 
             {!Record.isEmptyRecord(value) ? (
               <div className="mt-4 flex justify-end">

@@ -19,11 +19,20 @@ export const Game = ({ state, dispatch }: Props) => {
       round.score === null || round.score.every((score) => score.won === null)
   );
 
-  if (Option.isNone(currentRound)) {
+  const [showGameResult, setShowGameResult] = React.useState(false);
+
+  React.useEffect(() => {
+    if (Option.isNone(currentRound)) {
+      setShowGameResult(true);
+    }
+  }, [currentRound, state.rounds]);
+
+  if (Option.isNone(currentRound) && showGameResult) {
     return (
       <GameResult
         state={state}
         newGame={() => dispatch({ type: "resetGame" })}
+        hideResult={() => setShowGameResult(false)}
       />
     );
   }
@@ -35,37 +44,53 @@ export const Game = ({ state, dispatch }: Props) => {
     )
   );
 
+  const dealer = pipe(
+    currentRound,
+    Option.flatMap((round) =>
+      Array.findFirst(state.players, (p) => p.id === round.dealer)
+    )
+  );
+
   return (
     <div>
-      {pipe(
-        Option.all([currentRound, roundStage]),
-        Option.map(([round, stage]) => (
-          <div className="mb-4 flex justify-between gap-4">
-            <dl className="bg-stone-50 border border-stone-300 p-4 rounded-lg text-sm grid grid-cols-[auto_1fr] gap-x-6">
-              <dd className="font-semibold">Current round</dd>
-              <dt className="text-right">{round.number}</dt>
+      <div className="mb-4 flex justify-between gap-4">
+        <dl className="bg-stone-50 border border-stone-300 p-4 rounded-lg text-sm grid grid-cols-[auto_1fr] gap-x-6">
+          <dd className="font-semibold">Current round</dd>
+          <dt className="text-right">
+            {pipe(
+              currentRound,
+              Option.map((r) => r.number),
+              Option.getOrElse(() => "-")
+            )}
+          </dt>
 
-              <dd className="font-semibold">Stage</dd>
-              <dt className="text-right">{stage}</dt>
+          <dd className="font-semibold">Stage</dd>
+          <dt className="text-right">
+            {pipe(
+              roundStage,
+              Option.getOrElse(() => "Game over")
+            )}
+          </dt>
 
-              <dd className="font-semibold">Dealer</dd>
-              <dt className="text-right">
-                {state.players.find((p) => p.id === round.dealer)?.name}
-              </dt>
-            </dl>
-            <div>
-              <Button
-                type="button"
-                kind="secondary"
-                onClick={() => dispatch({ type: "resetGame" })}
-              >
-                Exit
-              </Button>
-            </div>
-          </div>
-        )),
-        Option.getOrNull
-      )}
+          <dd className="font-semibold">Dealer</dd>
+          <dt className="text-right">
+            {pipe(
+              dealer,
+              Option.map((d) => d.name),
+              Option.getOrElse(() => "-")
+            )}
+          </dt>
+        </dl>
+        <div>
+          <Button
+            type="button"
+            kind="secondary"
+            onClick={() => dispatch({ type: "resetGame" })}
+          >
+            Exit
+          </Button>
+        </div>
+      </div>
 
       {pipe(
         Option.all([roundStage, currentRound]),
@@ -78,6 +103,7 @@ export const Game = ({ state, dispatch }: Props) => {
             }
             round={round}
             roundCount={state.rounds.length}
+            trigger={<Button type="button">Submit Bids</Button>}
           />
         )),
         Option.getOrNull
@@ -94,22 +120,24 @@ export const Game = ({ state, dispatch }: Props) => {
             }
             round={round}
             roundCount={state.rounds.length}
+            trigger={<Button type="button">Submit Tricks</Button>}
           />
         )),
         Option.getOrNull
       )}
 
-      {pipe(
-        Option.all([roundStage, currentRound]),
-        Option.map(([stage, round]) => (
-          <Scoreboard
-            state={state}
-            currentRound={round.number}
-            roundStage={stage}
-          />
-        )),
-        Option.getOrNull
-      )}
+      <Scoreboard
+        state={state}
+        dispatch={dispatch}
+        currentRound={pipe(
+          currentRound,
+          Option.map((r) => r.number)
+        )}
+        roundStage={pipe(
+          roundStage,
+          Option.getOrElse(() => "results" as const)
+        )}
+      />
     </div>
   );
 };

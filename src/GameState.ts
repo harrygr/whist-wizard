@@ -72,10 +72,10 @@ export const gameReducer: React.Reducer<State, Action> = (state, action) => {
       if (round.number === action.round) {
         return {
           ...round,
-          score: action.bids.map((bid) => ({
+          score: action.bids.map((bid, index) => ({
             id: nanoid(5),
             bid: bid,
-            won: null,
+            won: round.score?.[index]?.won ?? null,
           })),
         };
       }

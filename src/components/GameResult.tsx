@@ -7,11 +7,12 @@ import classNames from "classnames";
 interface Props {
   state: State;
   newGame: () => void;
+  hideResult: () => void;
 }
 
 const FinalScoresSchema = Schema.NonEmptyArray(Schema.Number);
 
-export const GameResult = ({ state, newGame }: Props) => {
+export const GameResult = ({ state, newGame, hideResult }: Props) => {
   const result = calculateScores(state.players, state.rounds);
 
   const finalScores = pipe(
@@ -57,6 +58,10 @@ export const GameResult = ({ state, newGame }: Props) => {
 
       <Button onClick={newGame} type="button">
         Play Again
+      </Button>
+
+      <Button type="button" kind="secondary" size="small" onClick={hideResult}>
+        Back to scores
       </Button>
     </div>
   );
